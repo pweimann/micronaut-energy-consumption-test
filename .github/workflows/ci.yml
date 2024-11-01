@@ -1,0 +1,92 @@
+name: build micronaut kotlin app
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Eco-CI Init
+        uses: green-coding-berlin/eco-ci-energy-estimation@main
+        with:
+          task: start-measurement
+          json-output: true
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Checkout Measurement
+        uses: green-coding-solutions/eco-ci-energy-estimation@v4
+        with:
+          task: get-measurement
+          label: 'checkout repo'
+
+      - name: Set up JDK and Kotlin
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+      - name: Setup JDK Measurement
+        uses: green-coding-solutions/eco-ci-energy-estimation@v4
+        with:
+          task: get-measurement
+          label: 'setup jdk'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
+      - name: Cache Maven Measurement
+        uses: green-coding-solutions/eco-ci-energy-estimation@v4
+        with:
+          task: get-measurement
+          label: 'cache maven'
+
+      - name: Check Kotlin code style
+        run: mvn -B ktlint:check
+      - name: Ktlint Measurement
+        uses: green-coding-solutions/eco-ci-energy-estimation@v4
+        with:
+          task: get-measurement
+          label: 'ktlint check'
+
+      - name: Compile
+        run: mvn -B compile
+      - name: Compile Measurement
+        uses: green-coding-solutions/eco-ci-energy-estimation@v4
+        with:
+          task: get-measurement
+          label: 'compile'
+
+      - name: Run tests
+        run: mvn -B test
+      - name: Test Measurement
+        uses: green-coding-solutions/eco-ci-energy-estimation@v4
+        with:
+          task: get-measurement
+          label: 'run tests'
+
+      - name: Run detekt
+        run: mvn -B detekt:check
+      - name: Detekt Measurement
+        uses: green-coding-solutions/eco-ci-energy-estimation@v4
+        with:
+          task: get-measurement
+          label: 'detekt analysis'
+
+      - name: Package
+        run: mvn -B package -DskipTests
+      - name: Package Measurement
+        uses: green-coding-solutions/eco-ci-energy-estimation@v4
+        with:
+          task: get-measurement
+          label: 'package'
+
+      - name: Show Energy Result
+        id: data-total
+        uses: green-coding-solutions/eco-ci-energy-estimation@v4
+        with:
+          task: display-results
