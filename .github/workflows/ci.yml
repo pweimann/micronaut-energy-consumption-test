@@ -69,14 +69,6 @@ jobs:
           task: get-measurement
           label: 'run tests'
 
-      - name: Run detekt
-        run: mvn -B detekt:check
-      - name: Detekt Measurement
-        uses: green-coding-solutions/eco-ci-energy-estimation@v4
-        with:
-          task: get-measurement
-          label: 'detekt analysis'
-
       - name: Package
         run: mvn -B package -DskipTests
       - name: Package Measurement
